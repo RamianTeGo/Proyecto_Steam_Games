@@ -11,7 +11,7 @@ app = FastAPI()
 
 @app.get('/genero/{año}')
 
-def genero( año:str ):
+def genero(año):
 
   filtro = data[data['year'] == año]
   explode = filtro.explode('genres')
@@ -21,7 +21,7 @@ def genero( año:str ):
 
 @app.get('/juegos/{año}')
 
-def juegos( año: str ):
+def juegos(año):
 
     filtro = data[data['year'] == año] 
     game = filtro['title'].head(10).tolist()
@@ -30,7 +30,7 @@ def juegos( año: str ):
 
 @app.get('/specs/{año}')
 
-def specs(año:str):
+def specs(año):
     
     filtro = data[data['year'] == año]
     explode = filtro.explode('specs')
@@ -40,14 +40,14 @@ def specs(año:str):
 
 @app.get('/earlyacces/{año}')
 
-def earlyacces(año:str):
+def earlyacces(año):
     filtro = data[data['year'] == año]
     conteo_early = len(filtro[filtro['early_access'] == True])
     return {f'cantidad de juegos con acceso temprano este año {año} es':conteo_early} 
 
 @app.get('/sentiment/{año}')
 
-def sentiment(año:str):
+def sentiment(año):
 
     filtro = data[data['year'] == año]
     conte_sentimen = filtro['sentiment'].value_counts().to_dict()
@@ -55,7 +55,7 @@ def sentiment(año:str):
 
 @app.get('/metascore/{año}')
 
-def metascore(año: str):
+def metascore(año):
     filtro = data[data['year'] == año]
     top_juegos = filtro.sort_values(by='metascore', ascending = False)['title'][:5]
 
