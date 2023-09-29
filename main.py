@@ -2,63 +2,114 @@ from fastapi import FastAPI
 import pandas as pd
 import numpy as np
 
+generos1 = pd.read_csv('generos1.csv')
+recomendado = pd.read_csv('recomendado.csv')
+sentimento = pd.read_csv('sentiment.csv')
 
 
-
-data = pd.read_csv('data_games.csv')
 
 app = FastAPI()
 
-@app.get('/genero/')
+@app.get('/PlayTimeGenre/{genero}')
 
-def genero(año:int):
+def PlayTimeGenre( genero : str ):
 
-  filtro = data[data['year'] == año]
-  explode = filtro.explode('genres')
-  top = explode['genres'].value_counts().nlargest(5).index.tolist()
-
-  return {f'los 5 generos mas creados este año {año} son':top}
-
-print(genero(2008))
-
-@app.get('/juegos/')
-
-def juegos(año:int):
-
-    filtro = data[data['year'] == año] 
-    game = filtro['title'].head(10).tolist()
-
-    return {f'10 juegos lanzados este año {año} son':game}
-
-@app.get('/specs/')
-
-def specs(año:int):
     
-    filtro = data[data['year'] == año]
-    explode = filtro.explode('specs')
-    top = explode['specs'].value_counts().nlargest(5).index.tolist()
+    genero_df = generos1[generos1['genres'].str.contains(genero, case=False)]
+    
+    anio_con_max_horas = genero_df.groupby('year')['playtime_forever'].sum().idxmax()
+    
+    return {f'Año con mas horas jugadas del genero {genero}':anio_con_max_horas}
 
-    return {f'Las especificaciones mas repetidas este año {año} son':top}
 
-@app.get('/earlyacces/')
+@app.get('/UserForGenre/{genero}')
 
-def earlyacces(año:int):
-    filtro = data[data['year'] == año]
-    conteo_early = len(filtro[filtro['early_access'] == True])
-    return {f'cantidad de juegos con acceso temprano este año {año} es':conteo_early} 
+def UserForGenre( genero : str ):
+    
+    
+    genero_df = generos1[generos1['genres'].str.contains(genero, case=False)]
+    
+    usuario_mas_horas = genero_df.groupby('user_id')['playtime_forever'].sum().idxmax()
+    
+    usuario_genero_df = genero_df[genero_df['user_id'] == usuario_mas_horas]
+    
+    acumulacion_horas_por_anio = usuario_genero_df.groupby('year')['playtime_forever'].sum().reset_index()
 
-@app.get('/sentiment/')
+    lista_acumulacion_horas = [{'año': año, 'horas': horas} for año, horas in zip(acumulacion_horas_por_anio['year'], acumulacion_horas_por_anio['playtime_forever'])]
 
-def sentiment(año:int):
+    
+    return {f'Usuario con mas horas jugadas para el genero {genero}': usuario_mas_horas, 'Horas jugadas': lista_acumulacion_horas}
 
-    filtro = data[data['year'] == año]
-    conte_sentimen = filtro['sentiment'].value_counts().to_dict()
-    return conte_sentimen
 
-@app.get('/metascore/')
+@app.get('/UsersRecommend/{año}')
 
-def metascore(año:int):
-    filtro = data[data['year'] == año]
-    top_juegos = filtro.sort_values(by='metascore', ascending = False)['title'][:5]
 
-    return top_juegos.to_dict()
+def UsersRecommend(año:int):
+    
+
+    filtered_df = recomendado[(recomendado['year'] == año) & (recomendado['recommend'] == True) & (recomendado['sentiment_analisy'] >= 1)]
+    
+    # Agrupar y contar los juegos recomendados
+    game_counts = filtered_df['app_name'].value_counts().reset_index()
+    game_counts.columns = ['app_name', 'count']
+    
+    # Ordenar por la cantidad de recomendaciones en orden descendente
+    sorted_games = game_counts.sort_values(by='count', ascending=False)
+    
+    # Tomar los 3 juegos principales
+    top_3_games = sorted_games.head(3)
+    
+    # Crear la lista de diccionarios en el formato deseado
+    result = [{"Puesto {}: {}".format(i+1, game['app_name'])} for i, game in top_3_games.iterrows()]
+    
+    return result
+
+
+@app.get('/UsersNotRecommend/{año}')
+
+def UsersNotRecommend(año:int):
+
+    
+
+
+    filtered_df = recomendado[(recomendado['year'] == año) & (recomendado['recommend'] == False) & (recomendado['sentiment_analisy'] == 0)]
+    
+    # Agrupar y contar los juegos menos recomendados
+    game_counts = filtered_df['app_name'].value_counts().reset_index()
+    game_counts.columns = ['app_name', 'count']
+    
+    # Ordenar por la cantidad de juegos menos recomendados en orden descendente
+    sorted_games = game_counts.sort_values(by='count', ascending=False)
+    
+    # Tomar los 3 juegos principales
+    top_3_least_recommended = sorted_games.head(3)
+    
+    # Crear la lista de diccionarios en el formato deseado
+    result = [{"Puesto {}: {}".format(i+1, game['app_name'])} for i, game in top_3_least_recommended.iterrows()]
+    
+    return result
+
+@app.get('/sentiment_analysis/{anio}')
+
+def sentiment_analysis(año:int):
+    
+
+    año_reviu = sentimento[sentimento['year'] == año]
+    
+    conteo_sentiment = {'Negative': 0, 'Neutral': 0, 'Positive': 0}
+    
+    for index, row in año_reviu.iterrows():
+        sentiment = row['sentiment_analisy']
+        categoria = ''
+        
+        if sentiment == 0:
+            categoria = 'Negative'
+        elif sentiment == 1:
+            categoria = 'Neutral'
+        elif sentiment == 2:
+            categoria = 'Positive'
+        
+        # Incrementar el contador correspondiente en el diccionario
+        conteo_sentiment[categoria] += 1
+    
+    return conteo_sentiment
