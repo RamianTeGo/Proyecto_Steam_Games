@@ -21,7 +21,6 @@ def PlayTimeGenre(genero):
     
     return {f'Año con mas horas jugadas del genero {genero}': anio_con_max_horas}
 
-
 @app.get('/UserForGenre/{genero}')
 
 def UserForGenre(genero:str):
