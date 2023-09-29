@@ -10,21 +10,21 @@ sentimento = pd.read_csv('sentiment.csv')
 
 app = FastAPI()
 
+
 @app.get('/PlayTimeGenre/{genero}')
 
-def PlayTimeGenre( genero : str ):
-
-    
+def PlayTimeGenre(genero):
+        
     genero_df = generos1[generos1['genres'].str.contains(genero, case=False)]
     
     anio_con_max_horas = genero_df.groupby('year')['playtime_forever'].sum().idxmax()
     
-    return {f'Año con mas horas jugadas del genero {genero}':anio_con_max_horas}
+    return {f'Año con mas horas jugadas del genero {genero}': anio_con_max_horas}
 
 
 @app.get('/UserForGenre/{genero}')
 
-def UserForGenre( genero : str ):
+def UserForGenre(genero:str):
     
     
     genero_df = generos1[generos1['genres'].str.contains(genero, case=False)]
@@ -41,6 +41,7 @@ def UserForGenre( genero : str ):
     return {f'Usuario con mas horas jugadas para el genero {genero}': usuario_mas_horas, 'Horas jugadas': lista_acumulacion_horas}
 
 
+
 @app.get('/UsersRecommend/{año}')
 
 
@@ -49,14 +50,14 @@ def UsersRecommend(año:int):
 
     filtered_df = recomendado[(recomendado['year'] == año) & (recomendado['recommend'] == True) & (recomendado['sentiment_analisy'] >= 1)]
     
-    # Agrupar y contar los juegos recomendados
+    
     game_counts = filtered_df['app_name'].value_counts().reset_index()
     game_counts.columns = ['app_name', 'count']
     
-    # Ordenar por la cantidad de recomendaciones en orden descendente
+    
     sorted_games = game_counts.sort_values(by='count', ascending=False)
     
-    # Tomar los 3 juegos principales
+    
     top_3_games = sorted_games.head(3)
     
     # Crear la lista de diccionarios en el formato deseado
@@ -65,31 +66,31 @@ def UsersRecommend(año:int):
     return result
 
 
+
 @app.get('/UsersNotRecommend/{año}')
 
 def UsersNotRecommend(año:int):
 
-    
-
-
     filtered_df = recomendado[(recomendado['year'] == año) & (recomendado['recommend'] == False) & (recomendado['sentiment_analisy'] == 0)]
     
-    # Agrupar y contar los juegos menos recomendados
+    
     game_counts = filtered_df['app_name'].value_counts().reset_index()
     game_counts.columns = ['app_name', 'count']
     
-    # Ordenar por la cantidad de juegos menos recomendados en orden descendente
+    
     sorted_games = game_counts.sort_values(by='count', ascending=False)
     
-    # Tomar los 3 juegos principales
+    
     top_3_least_recommended = sorted_games.head(3)
     
-    # Crear la lista de diccionarios en el formato deseado
+    
     result = [{"Puesto {}: {}".format(i+1, game['app_name'])} for i, game in top_3_least_recommended.iterrows()]
     
     return result
 
-@app.get('/sentiment_analysis/{anio}')
+
+
+@app.get('/sentiment_analysis/{año}')
 
 def sentiment_analysis(año:int):
     
