@@ -15,11 +15,12 @@ app = FastAPI()
 
 def PlayTimeGenre(genero):
         
-    genero_df = generos1[generos1['genres'].str.contains(genero, case=False)]
+    genero_df = generos1[generos1['genres']== genero]
     
     anio_con_max_horas = genero_df.groupby('year')['playtime_forever'].sum().idxmax()
     
     return {f'Año con mas horas jugadas del genero {genero}': anio_con_max_horas}
+
 
 @app.get('/UserForGenre/{genero}')
 
@@ -44,7 +45,7 @@ def UserForGenre(genero:str):
 @app.get('/UsersRecommend/{año}')
 
 
-def UsersRecommend(año:int):
+def UsersRecommend(año):
     
 
     filtered_df = recomendado[(recomendado['year'] == año) & (recomendado['recommend'] == True) & (recomendado['sentiment_analisy'] >= 1)]
@@ -68,7 +69,7 @@ def UsersRecommend(año:int):
 
 @app.get('/UsersNotRecommend/{año}')
 
-def UsersNotRecommend(año:int):
+def UsersNotRecommend(año):
 
     filtered_df = recomendado[(recomendado['year'] == año) & (recomendado['recommend'] == False) & (recomendado['sentiment_analisy'] == 0)]
     
@@ -91,7 +92,7 @@ def UsersNotRecommend(año:int):
 
 @app.get('/sentiment_analysis/{año}')
 
-def sentiment_analysis(año:int):
+def sentiment_analysis(año):
     
 
     año_reviu = sentimento[sentimento['year'] == año]
