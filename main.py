@@ -49,14 +49,14 @@ def UserForGenre(genero:str):
 
 
 
-@app.get('/UsersRecommend/{año}')
+@app.get('/UsersRecommend/{anio}')
 
 
-def UsersRecommend(año:int):
+def UsersRecommend(anio:int):
 
     try:
     
-        filtered_df = recomendado[(recomendado['year'] == año) & (recomendado['recommend'] == True) & (recomendado['sentiment_analisy'] >= 1)]
+        filtered_df = recomendado[(recomendado['year'] == anio) & (recomendado['recommend'] == True) & (recomendado['sentiment_analisy'] >= 1)]
     
         game_counts = filtered_df['app_name'].value_counts().reset_index()
         game_counts.columns = ['app_name', 'count']
@@ -75,15 +75,13 @@ def UsersRecommend(año:int):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-print(UsersRecommend(2012))
-
 @app.get('/UsersNotRecommend/{año}')
 
-def UsersNotRecommend(año):
+def UsersNotRecommend(anio:int):
 
     try:
 
-        filtered_df = recomendado[(recomendado['year'] == año) & (recomendado['recommend'] == False) & (recomendado['sentiment_analisy'] == 0)]
+        filtered_df = recomendado[(recomendado['year'] == anio) & (recomendado['recommend'] == False) & (recomendado['sentiment_analisy'] == 0)]
     
         game_counts = filtered_df['app_name'].value_counts().reset_index()
         game_counts.columns = ['app_name', 'count']
@@ -102,12 +100,12 @@ def UsersNotRecommend(año):
         
 
 
-@app.get('/sentiment_analysis/{año}')
+@app.get('/sentiment_analysis/{anio}')
 
-def sentiment_analysis(año):
+def sentiment_analysis(anio:int):
     
 
-    año_reviu = sentimento[sentimento['year'] == año]
+    año_reviu = sentimento[sentimento['year'] == anio]
     
     conteo_sentiment = {'Negative': 0, 'Neutral': 0, 'Positive': 0}
     
