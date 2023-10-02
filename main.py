@@ -12,14 +12,19 @@ app = FastAPI()
 
 
 @app.get('/PlayTimeGenre/{genero}')
-
-def PlayTimeGenre(genero):
+def PlayTimeGenre(genero: str):
+    try:
+        genero_df = generos1[generos1['genres'] == genero]
         
-    genero_df = generos1[generos1['genres']== genero]
-    
-    anio_con_max_horas = genero_df.groupby('year')['playtime_forever'].sum().idxmax()
-    
-    return {f'Año con mas horas jugadas del genero {genero}': anio_con_max_horas}
+        
+        if genero_df.empty:
+            return {"error": f"El género {genero} no fue encontrado en los datos."}
+
+        anio_con_max_horas = genero_df.groupby('year')['playtime_forever'].sum().idxmax()
+
+        return {f'Año con mas horas jugadas del genero {genero}': int(anio_con_max_horas)}  # Convertimos a int
+    except Exception as e:
+        return {"error": str(e)}  # Manejamos cualquier excepción y la devolvemos como respuesta
 
 
 @app.get('/UserForGenre/{genero}')
