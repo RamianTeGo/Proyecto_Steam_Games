@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 import pandas as pd
 import numpy as np
+from fastapi import HTTPException
+
 
 generos1 = pd.read_csv('generos1.csv')
 recomendado = pd.read_csv('recomendado.csv')
@@ -50,49 +52,54 @@ def UserForGenre(genero:str):
 @app.get('/UsersRecommend/{año}')
 
 
-def UsersRecommend(año):
-    
+def UsersRecommend(año:int):
 
-    filtered_df = recomendado[(recomendado['year'] == año) & (recomendado['recommend'] == True) & (recomendado['sentiment_analisy'] >= 1)]
+    try:
     
+        filtered_df = recomendado[(recomendado['year'] == año) & (recomendado['recommend'] == True) & (recomendado['sentiment_analisy'] >= 1)]
     
-    game_counts = filtered_df['app_name'].value_counts().reset_index()
-    game_counts.columns = ['app_name', 'count']
+        game_counts = filtered_df['app_name'].value_counts().reset_index()
+        game_counts.columns = ['app_name', 'count']
+
+        sorted_games = game_counts.sort_values(by='count', ascending=False)
     
-    
-    sorted_games = game_counts.sort_values(by='count', ascending=False)
-    
-    
-    top_3_games = sorted_games.head(3)
-    
+        top_3_games = sorted_games.head(3)
+
+        if top_3_games.empty:
+            raise HTTPException(status_code=404, detail="No se encontraron juegos recomendados para el año especificado.")
+
     # Crear la lista de diccionarios en el formato deseado
-    result = [{"Puesto {}: {}".format(i+1, game['app_name'])} for i, game in top_3_games.iterrows()]
+        result = [{"Puesto {}: {}".format(i+1, game['app_name'])} for i, game in top_3_games.iterrows()]
     
-    return result
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-
+print(UsersRecommend(2012))
 
 @app.get('/UsersNotRecommend/{año}')
 
 def UsersNotRecommend(año):
 
-    filtered_df = recomendado[(recomendado['year'] == año) & (recomendado['recommend'] == False) & (recomendado['sentiment_analisy'] == 0)]
-    
-    
-    game_counts = filtered_df['app_name'].value_counts().reset_index()
-    game_counts.columns = ['app_name', 'count']
-    
-    
-    sorted_games = game_counts.sort_values(by='count', ascending=False)
-    
-    
-    top_3_least_recommended = sorted_games.head(3)
-    
-    
-    result = [{"Puesto {}: {}".format(i+1, game['app_name'])} for i, game in top_3_least_recommended.iterrows()]
-    
-    return result
+    try:
 
+        filtered_df = recomendado[(recomendado['year'] == año) & (recomendado['recommend'] == False) & (recomendado['sentiment_analisy'] == 0)]
+    
+        game_counts = filtered_df['app_name'].value_counts().reset_index()
+        game_counts.columns = ['app_name', 'count']
+    
+        sorted_games = game_counts.sort_values(by='count', ascending=False)
+    
+        top_3_least_recommended = sorted_games.head(3)
+
+        if top_3_least_recommended.empty:
+            raise HTTPException(status_code=404, detail="No se encontraron juegos recomendados para el año especificado.")
+
+        result = [{"Puesto {}: {}".format(i+1, game['app_name'])} for i, game in top_3_least_recommended.iterrows()]
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+        
 
 
 @app.get('/sentiment_analysis/{año}')
