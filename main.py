@@ -2,11 +2,16 @@ from fastapi import FastAPI
 import pandas as pd
 import numpy as np
 from fastapi import HTTPException
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics.pairwise import linear_kernel
 
 
 generos1 = pd.read_csv('generos1.csv')
 recomendado = pd.read_csv('recomendado.csv')
 sentimento = pd.read_csv('sentiment.csv')
+muestra_games = pd.read_csv('data_modelo.csv')
+
 
 
 
@@ -124,3 +129,28 @@ def sentiment_analysis(anio:int):
         conteo_sentiment[categoria] += 1
     
     return conteo_sentiment
+
+@app.get('/recomendacion_juego/{product_id}')
+
+def recomendacion_juego(product_id:int):
+    tfidf_vectorizer = TfidfVectorizer(stop_words='english', max_features=500)
+    tfidf_matrix = tfidf_vectorizer.fit_transform(muestra_games['genres'])
+    
+    cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
+    
+    index = muestra_games[muestra_games['id'] == product_id].index[0]
+    
+    sim_scores = list(enumerate(cosine_sim[index]))
+    
+    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+    
+    sim_scores = sim_scores[1:6]  
+    
+    game_indices = [i[0] for i in sim_scores]
+    recommended_games = muestra_games.iloc[game_indices][['app_name', 'genres']]
+    
+    recommendations_dict = {}
+    for game_index, score in zip(game_indices, sim_scores):
+        recommendations_dict[muestra_games.iloc[game_index]['app_name']] = score[1]
+    
+    return recommendations_dict
