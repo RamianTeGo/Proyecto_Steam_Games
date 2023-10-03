@@ -84,34 +84,7 @@ Despues de haber hecho las transformaciones necesarias el paso a seguir es el de
 - 3.3.3 Se exporta y guarda el archivo como 'sentiment.csv'.
 
 
-
-
-
-
-
-
-
-
-
-
-
-Al finalizar esta transformaciones el siguiente paso es realizar son las funciones demandadas para la creacion de la API. Para el desarrollo de la API con el dataset final se obtiene los datos necesarios para la creacion de la API. para esto se hace necesario FastAPI que permite crear aplicaciones en menos tiempo y requiere menos esfuerzo. y Render crear una imagen o vídeo con el que mostrar un concepto, idea o proyecto de forma digital y realista.
-
-a la API se le suministran las siguiente funciones:
-
- 1. def genero( Año: str ): Se ingresa un año y devuelve una lista con los 5 géneros más ofrecidos en el orden correspondiente.
-
-2. def juegos( Año: str ): Se ingresa un año y devuelve una lista con los juegos lanzados en el año.
-
-3. def specs( Año: str ): Se ingresa un año y devuelve una lista con los 5 specs que más se repiten en el mismo en el orden correspondiente.
-
-4. def earlyacces( Año: str ): Cantidad de juegos lanzados en un año con early access.
-
-5. def sentiment( Año: str ): Según el año de lanzamiento, se devuelve una lista con la cantidad de registros que se encuentren categorizados con un análisis de sentimiento.
-
-6. def metascore( Año: str ): Top 5 juegos según año con mayor metascore.
-
-Y por último, crear un modelo de predicción en el que, con las variables elejidas (metascore, y género), deberíamos predecir el precio del juego y el RMSE del modelo
+Y por último, en el archivo modelo_coseno.ipynb se crea un modelo de predicción en el que, con las variables elejidas (género), por un juego especifico deberia predecir otros juegos
 
 CONTENIDO DEL REPOSITORIO
 - ENTORNO VIRTUAL
@@ -121,10 +94,25 @@ CONTENIDO DEL REPOSITORIO
 - image.png
 - requirements.txt
 - steam_games
+## Tecnologia usada
+![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-0078d7.svg?style=for-the-badge&logo=visual-studio-code&logoColor=white)
+![Jupyter Notebook](https://img.shields.io/badge/jupyter-%23FA0F00.svg?style=for-the-badge&logo=jupyter&logoColor=white)
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+![Pandas](https://img.shields.io/badge/pandas-%23150458.svg?style=for-the-badge&logo=pandas&logoColor=white)
+![Matplotlib](https://img.shields.io/badge/Matplotlib-%23ffffff.svg?style=for-the-badge&logo=Matplotlib&logoColor=black)
+![Git](https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white)
+![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)
+![Markdown](https://img.shields.io/badge/markdown-%23000000.svg?style=for-the-badge&logo=markdown&logoColor=white)
+![Seaborn](https://raw.githubusercontent.com/Rickhersd/Rickhersd/e7a293e7309996b0a377e4bd8097aeeca321853b/neobrutalist_icons/neo_seaborn.svg)
 
 LINKS DE LA API 
 
 - https://steam-ratg.onrender.com
+
+
+## Autor
+
+Ramiro Andres Tejedor Gonzalez
 
 
 
